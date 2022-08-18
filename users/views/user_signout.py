@@ -22,8 +22,11 @@ class UserSignOutView(APIView):
     
     permission_classes = [IsAuthenticated]
     
-    post_params = openapi.Schema(type=openapi.TYPE_OBJECT, properties={
-        'refesh_token': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
+    post_params = openapi.Schema(
+        type       = openapi.TYPE_OBJECT,
+        required   = ['refesh_token'],
+        properties = {
+            'refesh_token': openapi.Schema(type=openapi.TYPE_STRING, description='string'),
         }
     )
     
