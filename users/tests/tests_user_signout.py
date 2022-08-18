@@ -19,7 +19,7 @@ class UserSignOutTest(APITestCase):
         2) fail test case(5개) 
             - 테스트 실패 시 에러 응답코드 확인
             - API 응답 데이터가 정상적으로 반환되었는지 확인
-    3. Parameters
+    2. Parameters
         1) token(Authentication/Authorization)
             - 인증/인가에 통과한 유저인지 확인(force_authenticate 메소드 사용)
         2) refresh token

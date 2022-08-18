@@ -19,7 +19,7 @@ class UserSignInTest(APITestCase):
         2) fail test case(4개) 
             - 테스트 실패 시 에러 응답코드 확인
             - API 응답 데이터가 정상적으로 반환되었는지 확인
-    3. Parameters
+    2. Parameters
         1) email
             - 필수 파라미터 확인
             - 입력받은 이메일이 유저의 이메일과 일치하는지 확인
