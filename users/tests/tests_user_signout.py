@@ -51,7 +51,6 @@ class UserSignOutTest(APITestCase):
                               nickname = 'test',
                               password = 'testPassw0rd!'
                           )
-        
         """
         첫 번째 유저 로그인
         """                  
@@ -87,6 +86,10 @@ class UserSignOutTest(APITestCase):
         
         self.client = APIClient()
         self.client.force_authenticate(user=self.f_user)
+    
+    """
+    테스트 데이터 삭제
+    """
                                                 
     def tearDown(self):
         User.objects.all().delete()
