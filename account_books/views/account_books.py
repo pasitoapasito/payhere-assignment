@@ -8,9 +8,10 @@ from rest_framework.response    import Response
 from rest_framework.permissions import IsAuthenticated
 
 from account_books.models       import AccountBook
-from account_books.serializers  import AccountBookSerializer
+from account_books.serializers  import AccountBookSerializer, AccountBookDetailSerializer
 
-from core.utils.decorator       import query_debugger
+from core.utils.decorator           import query_debugger
+from core.utils.get_obj_n_check_err import GetAccountBook
 
 
 class AccountBookView(APIView):
@@ -21,7 +22,7 @@ class AccountBookView(APIView):
     request body: name, budget
     return: json
     detail:
-      - GET: 인증/인가에 통과한 유저는 본인의 가계부 리스트(조회) 정보를 호출할 수 있습니다.
+      - GET: 인증/인가에 통과한 유저는 본인의 가계부 리스트 정보를 조회할 수 있습니다.
         > 부가기능
           * 가계부 검색기능(가계부 이름을 기준으로 검색 키워드 적용)
           * 정렬 기능(생성일자, 예산을 기준으로 정렬)
@@ -64,7 +65,9 @@ class AccountBookView(APIView):
         }
         
         """
-        Q 객체를 활용하여 검색기능 및 필터링(본인의 가계부) 기능 구현 
+        Q 객체 활용:
+          - 검색 기능(가계부 이름을 기준으로 검색 필터링)
+          - 필터링 기능(본인의 가계부 필터링)
         """
         q = Q()
         
@@ -95,3 +98,103 @@ class AccountBookView(APIView):
             serializer.save(user=user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+    
+    
+class AccountBookDetailView(APIView):
+    """
+    Assignee: 김동규
+    
+    path param: account_book_id
+    return: json
+    detail:
+      - PATCH: 인증/인가에 통과한 유저는 본인의 가계부를 수정할 수 있습니다.
+      - DELETE: 인증/인가에 통과한 유저는 본인의 가계부를 삭제할 수 있습니다.
+    """
+    
+    permission_classes = [IsAuthenticated]
+    
+    book_id = openapi.Parameter('account_book_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+    
+    @swagger_auto_schema(
+        request_body=AccountBookDetailSerializer, responses={200: AccountBookDetailSerializer},\
+        manual_parameters=[book_id]
+    )
+    def patch(self, request, account_book_id):
+        """
+        PATCH: 가계부 수정 기능
+        """
+        user = request.user
+        
+        """
+        가계부 객체/유저정보 확인
+        """
+        book, err = GetAccountBook.get_book_n_check_error(account_book_id, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        serializer = AccountBookDetailSerializer(book, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+    
+    book_id = openapi.Parameter('account_book_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+    
+    @swagger_auto_schema(responses={200: '가계부가 삭제되었습니다.'}, manual_parameters=[book_id])
+    def delete(self, request, account_book_id):
+        """
+        DELETE: 가계부 삭제 기능
+        """
+        user = request.user
+        
+        """
+        가계부 객체/유저정보 확인
+        """
+        book, err = GetAccountBook.get_book_n_check_error(account_book_id, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        if book.status == 'deleted':
+            return Response({'detail': f'가계부 {account_book_id}(id)는 이미 삭제된 상태입니다.'}, status=400)
+        
+        book.status = 'deleted'
+        book.save()
+        
+        return Response({'detail': f'가계부 {account_book_id}(id)가 삭제되었습니다.'}, status=200)
+    
+    
+class AccountBookRestoreView(APIView):
+    """
+    Assignee: 김동규
+    
+    path param: account_book_id
+    return: json
+    detail: 
+      - PATCH: 인증/인가에 통과한 유저는 본인의 삭제된 가계부를 복구할 수 있습니다.
+    """
+    
+    permission_classes = [IsAuthenticated]
+    
+    book_id = openapi.Parameter('account_book_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+    
+    @swagger_auto_schema(responses={200: '가계부가 복구되었습니다.'}, manual_parameters=[book_id])
+    def patch(self, request, account_book_id):
+        """
+        PATCH: 가계부 복구 기능
+        """
+        user = request.user
+        
+        """
+        가계부 객체/유저정보 확인
+        """
+        book, err = GetAccountBook.get_book_n_check_error(account_book_id, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        if book.status == 'in_use':
+            return Response({'detail': f'가계부 {account_book_id}(id)는 이미 사용중입니다.'}, status=400)
+        
+        book.status = 'in_use'
+        book.save()
+        
+        return Response({'detail': f'가계부 {account_book_id}(id)가 복구되었습니다.'}, status=200)
