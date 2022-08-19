@@ -1,7 +1,8 @@
 from django.urls import path
 
 from account_books.views.account_books           import AccountBookView, AccountBookDetailView, AccountBookRestoreView
-from account_books.views.account_book_categories import AccountBookCategoryView
+from account_books.views.account_book_categories import AccountBookCategoryView, AccountBookCategoryDetailView,\
+                                                        AccountBookCategoryRestoreView
 
 """
 가계부 url patterns
@@ -17,4 +18,6 @@ urlpatterns = [
 """
 urlpatterns += [
     path('/categories', AccountBookCategoryView.as_view()),
+    path('/categories/<int:account_book_category_id>', AccountBookCategoryDetailView.as_view()),
+    path('/categories/<int:account_book_category_id>/restore', AccountBookCategoryRestoreView.as_view()),
 ]

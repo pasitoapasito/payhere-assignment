@@ -96,3 +96,34 @@ class AccountBookCategorySerializer(ModelSerializer):
             'id'    : {'read_only': True},
             'status': {'read_only': True},
         }
+        
+        
+class AccountBookCategoryDetailSerializer(ModelSerializer):
+    """
+    Assignee: 김동규
+    
+    detail: 가계부 카테고리 데이터 시리얼라이저[PATCH 기능 유효성 검사]
+    model: AccountBookCategory
+    """
+    
+    nickname = serializers.SerializerMethodField()
+    
+    def get_nickname(self, obj: AccountBookCategory) -> str:
+        return obj.user.nickname
+    
+    def update(self, instance: AccountBookCategory, validated_data: OrderedDict) -> object:
+        
+        instance.name = validated_data.get('name', instance.name)
+        instance.save()
+        
+        return instance 
+    
+    class Meta:
+        model  = AccountBookCategory
+        fields = [
+            'id', 'nickname', 'name', 'status'
+        ]
+        extra_kwargs = {
+            'id'    : {'read_only': True},
+            'status': {'read_only': True},
+        }

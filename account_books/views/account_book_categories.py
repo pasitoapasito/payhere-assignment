@@ -8,9 +8,10 @@ from rest_framework.response    import Response
 from rest_framework.permissions import IsAuthenticated
 
 from account_books.models       import AccountBookCategory
-from account_books.serializers  import AccountBookCategorySerializer
+from account_books.serializers  import AccountBookCategorySerializer, AccountBookCategoryDetailSerializer
 
-from core.utils.decorator       import query_debugger
+from core.utils.decorator           import query_debugger
+from core.utils.get_obj_n_check_err import GetAccountBookCategory
 
 
 class AccountBookCategoryView(APIView):
@@ -95,3 +96,103 @@ class AccountBookCategoryView(APIView):
             serializer.save(user=user)
             return Response(serializer.data, status=201)
         return Response(serializer.errors, status=400)
+    
+    
+class AccountBookCategoryDetailView(APIView):
+    """
+    Assignee: 김동규
+    
+    path param: account_book_category_id
+    return: json
+    detail:
+      - PATCH: 인증/인가에 통과한 유저는 본인의 카테고리를 수정할 수 있습니다.
+      - DELETE: 인증/인가에 통과한 유저는 본인의 카테고리를 삭제할 수 있습니다.
+    """
+    
+    permission_classes = [IsAuthenticated]
+    
+    category_id = openapi.Parameter('account_book_category_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+
+    @swagger_auto_schema(
+        request_body=AccountBookCategoryDetailSerializer, responses={200: AccountBookCategoryDetailSerializer},\
+        manual_parameters=[category_id]
+    )
+    def patch(self, request, account_book_category_id):
+        """
+        PATCH: 가계부 카테고리 수정 기능
+        """
+        user = request.user
+        
+        """
+        가계부 카테고리 객체/유저정보 확인
+        """
+        category, err = GetAccountBookCategory.get_category_n_check_error(account_book_category_id, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        serializer = AccountBookCategoryDetailSerializer(category, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+    
+    category_id = openapi.Parameter('account_book_category_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+
+    @swagger_auto_schema(responses={200: '가계부 카테고리가 삭제되었습니다.'}, manual_parameters=[category_id])
+    def delete(self, request, account_book_category_id):
+        """
+        DELETE: 가계부 카테고리 삭제 기능
+        """
+        user = request.user
+        
+        """
+        가계부 카테고리 객체/유저정보 확인
+        """
+        category, err = GetAccountBookCategory.get_category_n_check_error(account_book_category_id, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        if category.status == 'deleted':
+            return Response({'detail': f'가계부 카테고리 {account_book_category_id}(id)는 이미 삭제된 상태입니다.'}, status=400)
+        
+        category.status = 'deleted'
+        category.save()
+        
+        return Response({'detail': f'가계부 카테고리 {account_book_category_id}(id)가 삭제되었습니다.'}, status=200)
+            
+    
+class AccountBookCategoryRestoreView(APIView):
+    """
+    Assignee: 김동규
+    
+    path param: account_book_category_id
+    return: json
+    detail: 
+      - PATCH: 인증/인가에 통과한 유저는 본인의 삭제된 카테고리를 복구할 수 있습니다.
+    """
+    
+    permission_classes = [IsAuthenticated]
+    
+    category_id = openapi.Parameter('account_book_category_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+
+    @swagger_auto_schema(responses={200: '가계부 카테고리가 복구되었습니다.'}, manual_parameters=[category_id])
+    def patch(self, request, account_book_category_id):
+        """
+        PATCH: 가계부 카테고리 복구 기능
+        """
+        user = request.user
+        
+        """
+        가계부 카테고리 객체/유저정보 확인
+        """
+        category, err = GetAccountBookCategory.get_category_n_check_error(account_book_category_id, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        if category.status == 'in_use':
+            return Response({'detail': f'가계부 카테고리 {account_book_category_id}(id)는 이미 사용중입니다.'}, status=400)
+        
+        category.status = 'in_use'
+        category.save()
+        
+        return Response({'detail': f'가계부 카테고리 {account_book_category_id}(id)가 복구되었습니다.'}, status=200)
