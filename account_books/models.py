@@ -45,7 +45,7 @@ class AccountBookLog(TimeStampModel):
     ]
     
     category    = models.ForeignKey('AccountBookCategory', on_delete=models.DO_NOTHING, null=True, blank=True)
-    book        = models.ForeignKey('AccountBook', on_delete=models.CASCADE)
+    book        = models.ForeignKey('AccountBook', related_name='logs', on_delete=models.CASCADE)
     title       = models.CharField(max_length=200)
     price       = models.DecimalField(max_digits=10, decimal_places=0)
     description = models.CharField(max_length=255, null=True, blank=True)
