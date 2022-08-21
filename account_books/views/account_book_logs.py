@@ -8,10 +8,12 @@ from rest_framework.response    import Response
 from rest_framework.permissions import IsAuthenticated
 
 from account_books.models       import AccountBookLog
-from account_books.serializers  import AccountBookLogSerializer, AccountBookLogSchema
+from account_books.serializers  import AccountBookLogSerializer, AccountBookLogSchema,\
+                                       AccountBookLogDetailSerializer
 
 from core.utils.decorator           import query_debugger
-from core.utils.get_obj_n_check_err import GetAccountBook, GetAccountBookCategory
+from core.utils.get_obj_n_check_err import GetAccountBook, GetAccountBookCategory,\
+                                           GetAccountBookLog
 
 
 class AccountBookLogView(APIView):
@@ -115,7 +117,7 @@ class AccountBookLogView(APIView):
         expenditure = logs.filter(types='expenditure').aggregate(total=Sum('price'))
         
         """
-        가계부 기록 최종 데이터(페이지네이션 기능 포함)
+        가계부 기록 최종 반환 데이터(페이지네이션 기능 포함)
         """
         data = {
             'nickname'         : user.nickname,
@@ -164,4 +166,141 @@ class AccountBookLogView(APIView):
         if serializer.is_valid():
             serializer.save(book=book, category=category)
             return Response(serializer.data, status=201)
-        return Response(serializer.errors, status=400)   
+        return Response(serializer.errors, status=400)
+    
+    
+class AccountBookLogDetailView(APIView):
+    """
+    Assignee: 김동규
+    
+    path param: account_book_id, account_book_log_id
+    return: json
+    detail:
+      - PATCH: 인증/인가에 통과한 유저는 본인의 가계부 기록을 수정할 수 있습니다.
+        > 수정 가능한 데이터(선택)
+          * request body: title, types, price, description
+          * query string: category 
+      - DELETE: 인증/인가에 통과한 유저는 본인의 가계부 기록을 삭제할 수 있습니다.
+    """
+    
+    permission_classes = [IsAuthenticated]
+    
+    category = openapi.Parameter('category', openapi.IN_QUERY, required=False, pattern='?category=', type=openapi.TYPE_STRING)
+    book_id  = openapi.Parameter('account_book_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+    log_id   = openapi.Parameter('account_book_log_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+
+    @swagger_auto_schema(
+        request_body=AccountBookLogDetailSerializer, responses={200: AccountBookLogDetailSerializer},\
+        manual_parameters=[book_id, log_id, category]
+    )
+    def patch(self, request, account_book_id, account_book_log_id):
+        """
+        PATCH: 가계부 기록 수정 기능
+        """
+        user = request.user
+        
+        """
+        가계부 객체/유저정보 확인
+        """
+        book, err = GetAccountBook.get_book_n_check_error(account_book_id, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        """
+        가계부 기록 객체/유저정보 확인
+        """
+        log, err = GetAccountBookLog.get_log_n_check_error(account_book_log_id, book, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        """
+        - 가계부 카테고리 정보(선택)
+        - 가계부 카테고리 객체/유저정보 확인
+        """
+        account_book_category_id = request.GET.get('category', log.category.id)
+        category, err = GetAccountBookCategory.get_category_n_check_error(account_book_category_id, user)
+        if err:
+            return Response({'detail': err}, status=400)
+            
+        serializer = AccountBookLogDetailSerializer(log, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save(category=category)
+            return Response(serializer.data, status=200)
+        return Response(serializer.errors, status=400)
+    
+    book_id = openapi.Parameter('account_book_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+    log_id  = openapi.Parameter('account_book_log_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+
+    @swagger_auto_schema(responses={200: '가계부 기록이 삭제되었습니다.'}, manual_parameters=[book_id, log_id])    
+    def delete(self, request, account_book_id, account_book_log_id):
+        """
+        DELETE: 가계부 기록 삭제 기능
+        """
+        user = request.user
+        
+        """
+        가계부 객체/유저정보 확인
+        """
+        book, err = GetAccountBook.get_book_n_check_error(account_book_id, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        """
+        가계부 기록 객체/유저정보 확인
+        """
+        log, err = GetAccountBookLog.get_log_n_check_error(account_book_log_id, book, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        if log.status == 'deleted':
+            return Response({'detail': f'가계부 기록 {account_book_log_id}(id)는 이미 삭제된 상태입니다.'}, status=400)
+        
+        log.status = 'deleted'
+        log.save()
+        
+        return Response({'detail': f'가계부 기록 {account_book_log_id}(id)가 삭제되었습니다.'}, status=200)
+        
+    
+class AccountBookLogRestoreView(APIView):
+    """
+    Assignee: 김동규
+    
+    path param: account_book_id, account_book_log_id
+    return: json
+    detail: 
+      - PATCH: 인증/인가에 통과한 유저는 본인의 삭제된 가계부 기록을 복구할 수 있습니다.
+    """
+    
+    permission_classes = [IsAuthenticated]
+    
+    book_id = openapi.Parameter('account_book_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+    log_id  = openapi.Parameter('account_book_log_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
+
+    @swagger_auto_schema(responses={200: '가계부 기록이 복구되었습니다.'}, manual_parameters=[book_id, log_id])    
+    def patch(self, request, account_book_id, account_book_log_id):
+        """
+        DELETE: 가계부 기록 복구 기능
+        """
+        user = request.user
+        
+        """
+        가계부 객체/유저정보 확인
+        """
+        book, err = GetAccountBook.get_book_n_check_error(account_book_id, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        """
+        가계부 기록 객체/유저정보 확인
+        """
+        log, err = GetAccountBookLog.get_log_n_check_error(account_book_log_id, book, user)
+        if err:
+            return Response({'detail': err}, status=400)
+        
+        if log.status == 'in_use':
+            return Response({'detail': f'가계부 기록 {account_book_log_id}(id)는 이미 사용중입니다.'}, status=400)
+        
+        log.status = 'in_use'
+        log.save()
+        
+        return Response({'detail': f'가계부 기록 {account_book_log_id}(id)가 복구되었습니다.'}, status=200)
