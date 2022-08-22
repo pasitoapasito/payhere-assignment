@@ -279,7 +279,7 @@ class AccountBookLogRestoreView(APIView):
     @swagger_auto_schema(responses={200: '가계부 기록이 복구되었습니다.'}, manual_parameters=[book_id, log_id])    
     def patch(self, request, account_book_id, account_book_log_id):
         """
-        DELETE: 가계부 기록 복구 기능
+        PATCH: 가계부 기록 복구 기능
         """
         user = request.user
         
