@@ -241,9 +241,286 @@
   #### 테스트 커버리지: 99%
   <img width="1000px" alt="스크린샷 2022-08-23 09 23 34" src="https://user-images.githubusercontent.com/89829943/186042173-f4357e95-7ba5-49b4-9f80-73c4549d1655.png">
 
+<br> 
 
+> **Issue**
+- #### ⏰ 프로젝트 일정관리
+  #### 프로젝트 진행사항을 칸반보드와 이슈티켓으로 관리했습니다.
+  <img width="1000px" alt="스크린샷 2022-08-21 08 33 05" src="https://user-images.githubusercontent.com/89829943/186043007-3bf11c62-f952-485b-a6ff-4722b3785005.png">
 
+<br>
+<hr>
 
+## Etc
+
+> **Guides**
+- #### ⚙️ 프로젝트 설치방법
+  #### ```✔️ 로컬 개발 및 테스트용```
+  
+  1. 해당 프로젝트를 clone하고, 프로젝트 폴더로 이동합니다.
+  <br>
+  
+   ```
+   git clone https://github.com/pasitoapasito/payhere-assignment.git
+   cd project directory
+   ```
+  
+  2. 가상환경을 만들고, 프로젝트에 필요한 python package를 다운받습니다.
+  <br>
+  
+  ```
+  conda create --name project-name python=3.9
+  conda activate project-name
+  pip install -r requirements.txt
+  ```
+  
+  3. manage.py 파일과 동일한 위치에서 환경설정 파일을 만듭니다.
+  <br>
+  
+  ```
+  ex) .env file 
+  
+  ## general ##
+  DEBUG         = True
+  ALLOWED_HOSTS = ALLOWED_HOSTS
+  SECRET_KEY    = SECRET_KEY
+
+  ## Docker DB ##
+  MYSQL_TCP_PORT      = '3306'
+  MYSQL_DATABASE      = MYSQL_DATABASE
+  MYSQL_ROOT_PASSWORD = MYSQL_ROOT_PASSWORD
+  MYSQL_USER          = MYSQL_USER
+  MYSQL_PASSWORD      = MYSQL_PASSWORD
+
+  ## AWS RDS ##
+  RDS_HOSTNAME = RDS_HOSTNAME
+  RDS_DB_NAME  = RDS_DB_NAME
+  RDS_USERNAME = RDS_USERNAME
+  RDS_PASSWORD = RDS_PASSWORD
+  RDS_PORT     = '3306'
+  ```
+  
+  4. project-name/settings.py에서 DB 설정을 적절하게 변경합니다.
+  <br>
+  
+  ```
+  Docker로 DB를 구축하는 경우 or AWS RDS로 DB를 구축하는 경우 등
+  DB를 구축하는 방법에 맞게 DB 설정을 변경합니다.
+  
+  
+  ## DOCKER DB FOR DEPLOY ##
+  '''
+  DATABASES = {
+      'default': {
+          'ENGINE'  : 'django.db.backends.mysql',
+          'NAME'    : get_env_variable('MYSQL_DATABASE'),
+          'USER'    : 'root',
+          'PASSWORD': get_env_variable('MYSQL_ROOT_PASSWORD'),
+          'HOST'    : 'localhost',
+          'PORT'    : get_env_variable('MYSQL_TCP_PORT'),
+      }
+  }
+  '''
+  
+  ## AWS RDS FOR LOCAL-DEV ##
+  DATABASES = {
+      'default': {
+          'ENGINE'  : 'django.db.backends.mysql',
+          'NAME'    : get_env_variable('RDS_DB_NAME'),
+          'USER'    : get_env_variable('RDS_USERNAME'),
+          'PASSWORD': get_env_variable('RDS_PASSWORD'),
+          'HOST'    : get_env_variable('RDS_HOSTNAME'),
+          'PORT'    : get_env_variable('RDS_PORT'),
+          'OPTIONS' : {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
+      }
+  }
+  ```
+  
+  5. DB의 스키마(schema)를 최신 modeling에 맞게 동기화합니다.
+  <br>
+  
+  ```
+  python manage.py migrate
+  ```
+  
+  6. 개발용 서버를 실행합니다.
+  <br>
+  
+  ```
+  python manage.py runserver 0:8000
+  ```
+
+  #### ```✔️ 배포용```
+  1. 배포용 서버에서 해당 프로젝트를 clone하고, 프로젝트 폴더로 이동합니다.
+  <br>
+  
+  ```
+  git clone https://github.com/pasitoapasito/payhere-assignment.git
+  cd project directory
+  ```
+  
+  2. manage.py 파일과 동일한 위치에서 도커 환경설정 파일을 만듭니다.
+  <br>
+  
+  ```
+  ex) .env file 
+  
+  ## general ##
+  DEBUG         = True
+  ALLOWED_HOSTS = ALLOWED_HOSTS
+  SECRET_KEY    = SECRET_KEY
+
+  ## Docker DB ##
+  MYSQL_TCP_PORT      = '3306'
+  MYSQL_DATABASE      = MYSQL_DATABASE
+  MYSQL_ROOT_PASSWORD = MYSQL_ROOT_PASSWORD
+  MYSQL_USER          = MYSQL_USER
+  MYSQL_PASSWORD      = MYSQL_PASSWORD
+
+  ## AWS RDS ##
+  RDS_HOSTNAME = RDS_HOSTNAME
+  RDS_DB_NAME  = RDS_DB_NAME
+  RDS_USERNAME = RDS_USERNAME
+  RDS_PASSWORD = RDS_PASSWORD
+  RDS_PORT     = '3306'
+  ```
+  
+  3. project-name/settings.py에서 DB 설정을 적절하게 변경합니다.
+  <br>
+  
+  ```
+  Docker로 DB를 구축하는 경우 or AWS RDS로 DB를 구축하는 경우 등
+  DB를 구축하는 방법에 맞게 DB 설정을 변경합니다.
+  
+  
+  ## DOCKER DB FOR DEPLOY ##
+  DATABASES = {
+      'default': {
+          'ENGINE'  : 'django.db.backends.mysql',
+          'NAME'    : get_env_variable('MYSQL_DATABASE'),
+          'USER'    : 'root',
+          'PASSWORD': get_env_variable('MYSQL_ROOT_PASSWORD'),
+          'HOST'    : 'localhost',
+          'PORT'    : get_env_variable('MYSQL_TCP_PORT'),
+      }
+  }
+  
+  ## AWS RDS FOR LOCAL-DEV ##
+  '''
+  DATABASES = {
+      'default': {
+          'ENGINE'  : 'django.db.backends.mysql',
+          'NAME'    : get_env_variable('RDS_DB_NAME'),
+          'USER'    : get_env_variable('RDS_USERNAME'),
+          'PASSWORD': get_env_variable('RDS_PASSWORD'),
+          'HOST'    : get_env_variable('RDS_HOSTNAME'),
+          'PORT'    : get_env_variable('RDS_PORT'),
+          'OPTIONS' : {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
+      }
+  }
+  '''
+  ```
+  
+  4. docker-compose 명령을 사용하여, DB/Nginx/Django 서버 컨테이너를 실행시킵니다.
+  <br>
+  
+  ```
+  docker-compose -f ./docker-compose.yml up (-d)
+  ```
+
+<br>
+
+> **Structure**
+- #### 🛠 프로젝트 폴더구조
+
+  ```
+   📦account_books
+   ┣ 📂migrations
+   ┃ ┣ 📜0001_initial.py
+   ┃ ┣ 📜0002_alter_accountbooklog_book.py
+   ┃ ┗ 📜__init__.py
+   ┣ 📂tests
+   ┃ ┣ 📂account_book
+   ┃ ┃ ┣ 📜__init__.py
+   ┃ ┃ ┣ 📜tests_account_book_create.py
+   ┃ ┃ ┣ 📜tests_account_book_delete.py
+   ┃ ┃ ┣ 📜tests_account_book_list.py
+   ┃ ┃ ┣ 📜tests_account_book_restore.py
+   ┃ ┃ ┗ 📜tests_account_book_update.py
+   ┃ ┣ 📂account_book_category
+   ┃ ┃ ┣ 📜__init__.py
+   ┃ ┃ ┣ 📜tests_account_book_category_create.py
+   ┃ ┃ ┣ 📜tests_account_book_category_delete.py
+   ┃ ┃ ┣ 📜tests_account_book_category_list.py
+   ┃ ┃ ┣ 📜tests_account_book_category_restore.py
+   ┃ ┃ ┗ 📜tests_account_book_category_update.py
+   ┃ ┣ 📂account_book_log
+   ┃ ┃ ┣ 📜__init__.py
+   ┃ ┃ ┣ 📜tests_account_book_log_create.py
+   ┃ ┃ ┣ 📜tests_account_book_log_delete.py
+   ┃ ┃ ┣ 📜tests_account_book_log_list.py
+   ┃ ┃ ┣ 📜tests_account_book_log_restore.py
+   ┃ ┃ ┗ 📜tests_account_book_log_update.py
+   ┃ ┗ 📜__init__.py
+   ┣ 📂views
+   ┃ ┣ 📜account_book_categories.py
+   ┃ ┣ 📜account_book_logs.py
+   ┃ ┗ 📜account_books.py
+   ┣ 📜__init__.py
+   ┣ 📜admin.py
+   ┣ 📜apps.py
+   ┣ 📜models.py
+   ┣ 📜serializers.py
+   ┗ 📜urls.py
+   📦config
+   ┗ 📂nginx
+   ┃ ┗ 📜nginx.conf
+   📦core
+   ┣ 📂migrations
+   ┃ ┗ 📜__init__.py
+   ┣ 📂utils
+   ┃ ┣ 📜decorator.py
+   ┃ ┗ 📜get_obj_n_check_err.py
+   ┣ 📜__init__.py
+   ┣ 📜admin.py
+   ┣ 📜apps.py
+   ┣ 📜models.py
+   ┣ 📜tests.py
+   ┗ 📜views.py
+   📦payhere
+   ┣ 📜__init__.py
+   ┣ 📜asgi.py
+   ┣ 📜settings.py
+   ┣ 📜urls.py
+   ┗ 📜wsgi.py
+   📦users
+   ┣ 📂migrations
+   ┃ ┣ 📜0001_initial.py
+   ┃ ┗ 📜__init__.py
+   ┣ 📂tests
+   ┃ ┣ 📜__init__.py
+   ┃ ┣ 📜tests_user_refresh_token.py
+   ┃ ┣ 📜tests_user_signin.py
+   ┃ ┣ 📜tests_user_signout.py
+   ┃ ┗ 📜tests_user_signup.py
+   ┣ 📂views
+   ┃ ┣ 📜user_signin.py
+   ┃ ┣ 📜user_signout.py
+   ┃ ┗ 📜user_signup.py
+   ┣ 📜__init__.py
+   ┣ 📜admin.py
+   ┣ 📜apps.py
+   ┣ 📜models.py
+   ┣ 📜serializers.py
+   ┗ 📜urls.py
+   ┣ 📜.env
+   ┣ 📜.gitignore
+   ┣ 📜docker-compose.yml
+   ┣ 📜Dockerfile
+   ┣ 📜manage.py
+   ┣ 📜README.md
+   ┗ 📜requirements.txt
+  ```
 
 
 
