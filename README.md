@@ -321,7 +321,7 @@
   DB를 구축하는 방법에 맞게 DB 설정을 변경합니다.
   
   
-  ## DOCKER DB FOR DEPLOY ##
+  ## DOCKER DB FOR LOCAL-DEV ##
   '''
   DATABASES = {
       'default': {
@@ -413,12 +413,12 @@
           'NAME'    : get_env_variable('MYSQL_DATABASE'),
           'USER'    : 'root',
           'PASSWORD': get_env_variable('MYSQL_ROOT_PASSWORD'),
-          'HOST'    : 'localhost',
+          'HOST'    : 'db',
           'PORT'    : get_env_variable('MYSQL_TCP_PORT'),
       }
   }
   
-  ## AWS RDS FOR LOCAL-DEV ##
+  ## AWS RDS FOR DEPLOY ##
   '''
   DATABASES = {
       'default': {
