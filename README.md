@@ -216,5 +216,30 @@
 - #### 🚀 ERD 구조
   <img width="1000px" alt="스크린샷 2022-08-23 08 09 47" src="https://user-images.githubusercontent.com/89829943/186034893-74811ef5-67d2-47c9-8514-5544b18179de.png">
 
+<br> 
 
+> **API Docs**
+- #### 🌈 API 명세서
+  <img width="1000px" alt="스크린샷 2022-08-23 08 47 49" src="https://user-images.githubusercontent.com/89829943/186038988-633d74bc-faab-4624-b333-aefb971d2ef0.png">
+
+<br> 
+
+> **Deploy**
+- #### 🏖 프로젝트 배포
+  #### Docker, Nginx, Gunicorn을 사용하여 AWS EC2 서버에 프로젝트를 배포했습니다.
+  <img width="1000px" alt="스크린샷 2022-07-27 08 47 14" src="https://user-images.githubusercontent.com/89829943/181131164-f9bd2137-1f08-4263-9a31-035cd0435af8.png">
+
+<br> 
+
+> **Test**
+- #### 🚦 테스트코드 작성
+  #### 전체 테스트코드: 138 cases
+  <img width="1000px" alt="스크린샷 2022-08-23 09 12 33" src="https://user-images.githubusercontent.com/89829943/186041202-39b01448-1ae4-4463-99ce-8bcd2babd129.png">
+
+
+
+
+
+
+ 
 
