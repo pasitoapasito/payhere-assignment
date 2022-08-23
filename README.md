@@ -249,7 +249,7 @@
   #### 전체 테스트코드: 138 cases
   <img width="1000px" alt="스크린샷 2022-08-23 09 12 33" src="https://user-images.githubusercontent.com/89829943/186041202-39b01448-1ae4-4463-99ce-8bcd2babd129.png">
   <img width="1000px" alt="스크린샷 2022-08-23 09 18 56" src="https://user-images.githubusercontent.com/89829943/186041838-824eed99-9d8f-4e2b-b9f9-390c33322d10.png">
-  <img width="1000px" alt="스크린샷 2022-08-22 14 23 23" src="https://user-images.githubusercontent.com/89829943/186041849-08ededd5-e183-470d-9997-7b46a2ab5749.png">
+  <img width="1000px" alt="스크린샷 2022-08-23 11 24 13" src="https://user-images.githubusercontent.com/89829943/186055114-c098aca5-e370-40ae-bd19-e1489e492120.png">
   
   #### 테스트 커버리지: 99%
   <img width="1000px" alt="스크린샷 2022-08-23 09 23 34" src="https://user-images.githubusercontent.com/89829943/186042173-f4357e95-7ba5-49b4-9f80-73c4549d1655.png">
