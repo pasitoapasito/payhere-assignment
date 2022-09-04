@@ -87,13 +87,7 @@ class AccountBookCategoryDeleteTest(APITestCase):
         response = self.client\
                        .delete('/api/account-books/categories/1', content_type='application/json')
                        
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.json(),
-            {
-                'detail': '가계부 카테고리 1(id)가 삭제되었습니다.'
-            }
-        )
+        self.assertEqual(response.status_code, 204)
     
     """
     실패 케이스 테스트코드

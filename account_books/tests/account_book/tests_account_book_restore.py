@@ -90,13 +90,7 @@ class AccountBookRestoreTest(APITestCase):
         response = self.client\
                        .patch('/api/account-books/1/restore', content_type='application/json')
     
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(
-            response.json(),
-            {
-                'detail': '가계부 1(id)가 복구되었습니다.'
-            }
-        )
+        self.assertEqual(response.status_code, 204)
     
     """
     실패 케이스 테스트코드
