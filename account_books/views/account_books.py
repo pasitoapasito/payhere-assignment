@@ -140,7 +140,7 @@ class AccountBookDetailView(APIView):
     
     book_id = openapi.Parameter('account_book_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
     
-    @swagger_auto_schema(responses={200: '가계부가 삭제되었습니다.'}, manual_parameters=[book_id])
+    @swagger_auto_schema(responses={204: '가계부가 삭제되었습니다.'}, manual_parameters=[book_id])
     def delete(self, request, account_book_id):
         """
         DELETE: 가계부 삭제 기능
@@ -160,7 +160,7 @@ class AccountBookDetailView(APIView):
         book.status = 'deleted'
         book.save()
         
-        return Response({'detail': f'가계부 {account_book_id}(id)가 삭제되었습니다.'}, status=200)
+        return Response(status=204)
     
     
 class AccountBookRestoreView(APIView):
@@ -177,7 +177,7 @@ class AccountBookRestoreView(APIView):
     
     book_id = openapi.Parameter('account_book_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
     
-    @swagger_auto_schema(responses={200: '가계부가 복구되었습니다.'}, manual_parameters=[book_id])
+    @swagger_auto_schema(responses={204: '가계부가 복구되었습니다.'}, manual_parameters=[book_id])
     def patch(self, request, account_book_id):
         """
         PATCH: 가계부 복구 기능
@@ -197,4 +197,4 @@ class AccountBookRestoreView(APIView):
         book.status = 'in_use'
         book.save()
         
-        return Response({'detail': f'가계부 {account_book_id}(id)가 복구되었습니다.'}, status=200)
+        return Response(status=204)

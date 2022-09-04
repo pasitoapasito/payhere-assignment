@@ -30,7 +30,7 @@ class UserSignOutView(APIView):
         }
     )
     
-    @swagger_auto_schema(request_body=post_params, responses={200: '유저가 로그아웃 되었습니다.'})
+    @swagger_auto_schema(request_body=post_params, responses={204: '유저가 로그아웃 되었습니다.'})
     def post(self, request):
         """
         POST: 유저 로그아웃 기능
@@ -57,4 +57,4 @@ class UserSignOutView(APIView):
         for token in OutstandingToken.objects.filter(user_id=refresh['user_id']):
             BlacklistedToken.objects.get_or_create(token=token)
             
-        return Response({'message' : f'유저 {user.nickname}이 로그아웃 되었습니다.'}, status=200)
+        return Response(status=204)

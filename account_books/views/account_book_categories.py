@@ -138,7 +138,7 @@ class AccountBookCategoryDetailView(APIView):
     
     category_id = openapi.Parameter('account_book_category_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
 
-    @swagger_auto_schema(responses={200: '가계부 카테고리가 삭제되었습니다.'}, manual_parameters=[category_id])
+    @swagger_auto_schema(responses={204: '가계부 카테고리가 삭제되었습니다.'}, manual_parameters=[category_id])
     def delete(self, request, account_book_category_id):
         """
         DELETE: 가계부 카테고리 삭제 기능
@@ -158,7 +158,7 @@ class AccountBookCategoryDetailView(APIView):
         category.status = 'deleted'
         category.save()
         
-        return Response({'detail': f'가계부 카테고리 {account_book_category_id}(id)가 삭제되었습니다.'}, status=200)
+        return Response(status=204)
             
     
 class AccountBookCategoryRestoreView(APIView):
@@ -175,7 +175,7 @@ class AccountBookCategoryRestoreView(APIView):
     
     category_id = openapi.Parameter('account_book_category_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
 
-    @swagger_auto_schema(responses={200: '가계부 카테고리가 복구되었습니다.'}, manual_parameters=[category_id])
+    @swagger_auto_schema(responses={204: '가계부 카테고리가 복구되었습니다.'}, manual_parameters=[category_id])
     def patch(self, request, account_book_category_id):
         """
         PATCH: 가계부 카테고리 복구 기능
@@ -195,4 +195,4 @@ class AccountBookCategoryRestoreView(APIView):
         category.status = 'in_use'
         category.save()
         
-        return Response({'detail': f'가계부 카테고리 {account_book_category_id}(id)가 복구되었습니다.'}, status=200)
+        return Response(status=204)
