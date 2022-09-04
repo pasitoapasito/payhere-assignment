@@ -111,14 +111,8 @@ class UserSignOutTest(APITestCase):
         blacklist_token = BlacklistedToken.objects\
                                           .get(token_id=self.f_refresh.id)
                                           
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 204)
         self.assertEqual(self.f_refresh.id, blacklist_token.token_id)
-        self.assertEqual(
-            response.json(),
-            {
-                'message': '유저 user이 로그아웃 되었습니다.'
-            }
-        )
     
     """
     실패 케이스 테스트코드

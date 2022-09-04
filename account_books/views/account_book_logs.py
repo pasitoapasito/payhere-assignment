@@ -231,7 +231,7 @@ class AccountBookLogDetailView(APIView):
     book_id = openapi.Parameter('account_book_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
     log_id  = openapi.Parameter('account_book_log_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
 
-    @swagger_auto_schema(responses={200: '가계부 기록이 삭제되었습니다.'}, manual_parameters=[book_id, log_id])    
+    @swagger_auto_schema(responses={204: '가계부 기록이 삭제되었습니다.'}, manual_parameters=[book_id, log_id])    
     def delete(self, request, account_book_id, account_book_log_id):
         """
         DELETE: 가계부 기록 삭제 기능
@@ -258,7 +258,7 @@ class AccountBookLogDetailView(APIView):
         log.status = 'deleted'
         log.save()
         
-        return Response({'detail': f'가계부 기록 {account_book_log_id}(id)가 삭제되었습니다.'}, status=200)
+        return Response(status=204)
         
     
 class AccountBookLogRestoreView(APIView):
@@ -276,7 +276,7 @@ class AccountBookLogRestoreView(APIView):
     book_id = openapi.Parameter('account_book_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
     log_id  = openapi.Parameter('account_book_log_id', openapi.IN_PATH, required=True, type=openapi.TYPE_INTEGER)
 
-    @swagger_auto_schema(responses={200: '가계부 기록이 복구되었습니다.'}, manual_parameters=[book_id, log_id])    
+    @swagger_auto_schema(responses={204: '가계부 기록이 복구되었습니다.'}, manual_parameters=[book_id, log_id])    
     def patch(self, request, account_book_id, account_book_log_id):
         """
         PATCH: 가계부 기록 복구 기능
@@ -303,4 +303,4 @@ class AccountBookLogRestoreView(APIView):
         log.status = 'in_use'
         log.save()
         
-        return Response({'detail': f'가계부 기록 {account_book_log_id}(id)가 복구되었습니다.'}, status=200)
+        return Response(status=204)
