@@ -55,6 +55,7 @@ class UserSignOutView(APIView):
         해당 유저의 발급된 모든 리프레시 토큰을 사용 제한합니다.
         """
         for token in OutstandingToken.objects.filter(user_id=refresh['user_id']):
-            BlacklistedToken.objects.get_or_create(token=token)
+            BlacklistedToken.objects\
+                            .get_or_create(token=token)
             
         return Response(status=204)
