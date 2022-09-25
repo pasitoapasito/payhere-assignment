@@ -1,4 +1,4 @@
-name: Django CI-CD workflow
+name: Django CI/CD workflow
 
 on: 
   push:
