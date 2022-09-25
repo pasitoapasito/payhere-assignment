@@ -105,32 +105,43 @@ WSGI_APPLICATION = 'payhere.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
-## DOCKER DB FOR DEPLOY ##
-'''
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': get_env_variable('MYSQL_DATABASE'),
-        'USER': 'root',
-        'PASSWORD': get_env_variable('MYSQL_ROOT_PASSWORD'),
-        'HOST': 'db',
-        'PORT': get_env_variable('MYSQL_TCP_PORT'),
+if os.getenv('GITHUB_WORKFLOW'):
+    DATABASES = {
+        'default': {
+            'ENGINE': get_env_variable('DB_ENGINE'),
+            'NAME': get_env_variable('DB_NAME'),
+            'USER': get_env_variable('DB_USER'),
+            'PASSWORD': get_env_variable('DB_PASSWORD'),
+            'HOST': get_env_variable('DB_HOST'),
+            'PORT': get_env_variable('DB_PORT')
+        }
     }
-}
-'''
-
-## AWS RDS FOR LOCAL-DEV ##
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.mysql',
-        'NAME': get_env_variable('RDS_DB_NAME'),
-        'USER': get_env_variable('RDS_USERNAME'),
-        'PASSWORD': get_env_variable('RDS_PASSWORD'),
-        'HOST': get_env_variable('RDS_HOSTNAME'),
-        'PORT': get_env_variable('RDS_PORT'),
-        'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
+else:
+    ## AWS RDS ##
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': get_env_variable('RDS_DB_NAME'),
+            'USER': get_env_variable('RDS_USERNAME'),
+            'PASSWORD': get_env_variable('RDS_PASSWORD'),
+            'HOST': get_env_variable('RDS_HOSTNAME'),
+            'PORT': get_env_variable('RDS_PORT'),
+            'OPTIONS': {'init_command': "SET sql_mode='STRICT_TRANS_TABLES'"},
+        }
     }
-}
+    ## DOCKER DB ##
+    '''
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.mysql',
+            'NAME': get_env_variable('MYSQL_DATABASE'),
+            'USER': 'root',
+            'PASSWORD': get_env_variable('MYSQL_ROOT_PASSWORD'),
+            'HOST': 'db',
+            'PORT': get_env_variable('MYSQL_TCP_PORT'),
+        }
+    }
+    '''
 
 ## CORS ##
 CORS_ORIGIN_ALLOW_ALL  = True
