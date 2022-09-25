@@ -1,4 +1,4 @@
-name: Django CI/CD workflow
+name: Django CI-CD workflow
 
 on: 
   push:
@@ -79,3 +79,44 @@ jobs:
         DB_PASSWORD: root
         DB_HOST: 127.0.0.1
         DB_PORT: 3306
+
+  build-deploy:
+    
+    runs-on: ubuntu-latest
+    needs: [test]
+    if: ${{ github.event_name == 'push' }}
+
+    steps:
+    - name: checkout
+      uses: actions/checkout@v2
+    
+    - name: create env file
+      run: |
+        touch .env
+        echo "${{ secrets.ENV }}" >> .env
+    
+    - name: create remote directory
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        script: mkdir -p /home/ubuntu/srv/deploy
+    
+    - name: copy source via ssh key
+      uses: burnett01/rsync-deployments@4.1
+      with:
+        switches: -avzr --delete
+        remote_path: /home/ubuntu/srv/deploy/
+        remote_host: ${{ secrets.HOST }}
+        remote_user: ${{ secrets.USERNAME }}
+        remote_key: ${{ secrets.KEY }}
+
+    - name: executing remote ssh commands
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        script: |
+          sh /home/ubuntu/srv/deploy/config/scripts/deploy.sh
