@@ -7,6 +7,7 @@ on:
       - develop
     paths-ignore:
       - '.gitignore'
+      - '.dockerignore'
       - 'README.md'
   pull_request:
     branches:
@@ -41,17 +42,17 @@ jobs:
     - name: checkout
       uses: actions/checkout@v2
     
-    - name: Set up Python ${{ matrix.python-version }}
+    - name: set up python ${{ matrix.python-version }}
       uses: actions/setup-python@v2
       with:
         python-version: ${{ matrix.python-version }}
     
-    - name: Install Dependencies
+    - name: install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
     
-    - name: Run Migrations
+    - name: run migrations
       run: |
         export DEBUG=1
         export SECRET_KEY=test-secret-key
@@ -65,7 +66,7 @@ jobs:
         DB_HOST: 127.0.0.1
         DB_PORT: 3306
     
-    - name: Run Tests
+    - name: run tests
       run: |
         export DEBUG=1
         export SECRET_KEY=test-secret-key
