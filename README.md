@@ -338,10 +338,10 @@
   1. 해당 프로젝트를 clone하고, 프로젝트 폴더로 이동합니다.
   <br>
   
-   ```
-   git clone https://github.com/pasitoapasito/payhere-assignment.git
-   cd project directory
-   ```
+  ```
+  git clone https://github.com/pasitoapasito/payhere-assignment.git
+  cd project directory
+  ```
   
   2. 가상환경을 만들고, 프로젝트에 필요한 python package를 다운받습니다.
   <br>
