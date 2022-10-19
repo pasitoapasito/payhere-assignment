@@ -270,7 +270,6 @@ class AccountBookCategoryListTest(APITestCase):
     """
     
     def test_fail_list_account_book_category_due_to_unauthorized_user(self):
-        
         response = self.client\
                        .get(f'/api/account-books/categories', content_type='application/json')
                        

@@ -73,9 +73,7 @@ class AccountBookCreateTest(APITestCase):
     실패 케이스 테스트코드
     """
         
-    def test_fail_create_account_book_due_to_unauthorized_user(self):
-        self.client = APIClient()
-        
+    def test_fail_create_account_book_due_to_unauthorized_user(self):        
         data = {
             'name': 'accountbook',
             'budget': 100000
