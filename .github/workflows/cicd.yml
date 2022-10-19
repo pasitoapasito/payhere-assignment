@@ -1,4 +1,4 @@
-name: Django CI/CD Workflow
+name: Django CI-CD Workflow
 
 on: 
   push:
@@ -95,7 +95,18 @@ jobs:
       run: |
         touch .env
         echo "${{ secrets.ENV }}" >> .env
-    
+    - name: get github actions runner's ip
+      id: ip
+      uses: haythem/public-ip@v1.2
+
+    - name: add github actions runner's ip to aws ec2 security group
+      run: |
+        aws ec2 authorize-security-group-ingress --group-name ${{ secrets.SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+
     - name: create remote directory
       uses: appleboy/ssh-action@master
       with:
@@ -121,3 +132,11 @@ jobs:
         key: ${{ secrets.KEY }}
         script: |
           sh /home/ubuntu/srv/deploy/config/scripts/deploy.sh
+    - name: remove github actions runner's ip from aws ec2 security group
+      run: |
+        aws ec2 revoke-security-group-ingress --group-name ${{ secrets.SG_NAME }} --protocol tcp --port 22 --cidr ${{ steps.ip.outputs.ipv4 }}/32
+      env:
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        AWS_DEFAULT_REGION: ${{ secrets.AWS_DEFAULT_REGION }}
+      if: ${{ always() }}
